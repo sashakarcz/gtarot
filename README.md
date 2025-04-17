@@ -14,7 +14,6 @@ gtarot is a command-line tool written in Go that creates PNG images of tarot car
 
 Embed all tarot card images (*.png) into the Go binary using embed.FS
 
-! Thank you to the [Internet Archive](https://archive.org/details/rider-waite-tarot) for the public domain images of the Rider-Waite deck.
 
 Specify cards directly via `-c` or via `YAML` file
 
@@ -108,4 +107,7 @@ MIT – do as thou wilt!
 
 PRs welcome!
 
+## Sources
+
+Thank you to the [Internet Archive](https://archive.org/details/rider-waite-tarot) for the public domain images of the Rider-Waite deck.
 
