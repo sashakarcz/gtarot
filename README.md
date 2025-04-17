@@ -39,13 +39,13 @@ go mod tidy
 go build -o gtarot
 ```
 
-Make sure your cards/ folder contains images named like:
+Ifyou wish to add custom cards, make sure your cards/ folder contains images named like:
 
-major_arcana_fool.png
+`major_arcana_fool.png`
 
-minor_arcana_swords_5.png
+`minor_arcana_swords_5.png`
 
-minor_arcana_cups_queen.png
+`minor_arcana_cups_queen.png`
 
 ## Usage
 
@@ -82,14 +82,16 @@ Then run:
 ./gtarot -yaml spread.yaml
 ```
 
-### 🧾 Command Line Flags
+### Command Line Flags
 
-| Flag      | Description                                                     | Example Usage                                  |
-|-----------|-----------------------------------------------------------------|------------------------------------------------|
-| `-c`      | Comma-separated list of card names. Use `!` for reversed cards. | `-c strength,!hermit,5_of_swords`              |
-| `-yaml`   | Path to a YAML file specifying cards and output filename.       | `-yaml spread.yaml`                            |
-| `-o`      | Output PNG filename (default: `spread.png`).                    | `-o custom.png`                                |
-| `-list`   | List all available embedded tarot card names.                   | `-list`                                        |
+| Flag             | Description                                                           | Example Usage                                  |
+|------------------|-----------------------------------------------------------------------|------------------------------------------------|
+| `-c`             | Comma-separated list of card names. Use `!` for reversed cards.       | `-c strength,!hermit,5_of_swords`              |
+| `-yaml`          | Path to a YAML file specifying cards and output filename.             | `-yaml spread.yaml`                            |
+| `-o`             | Output PNG filename (default: `spread.png`).                          | `-o custom.png`                                |
+| `-list`          | List all available embedded tarot card names.                         | `-list`                                        |
+| `-random`        | Creates a random draw of cards with number of cards entered.          | `-random 5`                                    |
+| `-allow-reverse` | Used with `-random`; allows for cards to be reversed. Default: False. | `-random 5 -allow-reverse`                     |
 
 
 ### Example Output

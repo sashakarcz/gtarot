@@ -9,8 +9,10 @@ import (
 	"image"
 	"image/png"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/fogleman/gg"
 	"gopkg.in/yaml.v3"
@@ -149,17 +151,77 @@ func listAvailableCards() error {
 	return nil
 }
 
+// getAllCardNames retrieves all card names from the embedded filesystem
+func getAllCardNames() ([]string, error) {
+	entries, err := cardFS.ReadDir("cards")
+	if err != nil {
+		return nil, err
+	}
+
+	var cardNames []string
+	for _, entry := range entries {
+		base := strings.TrimSuffix(entry.Name(), ".png")
+		if strings.HasPrefix(base, "major_arcana_") {
+			cardNames = append(cardNames, strings.TrimPrefix(base, "major_arcana_"))
+		} else if strings.HasPrefix(base, "minor_arcana_") {
+			parts := strings.Split(base, "_")
+			if len(parts) >= 4 {
+				cardNames = append(cardNames, fmt.Sprintf("%s_of_%s", strings.Join(parts[3:], "_"), parts[2]))
+			}
+		}
+	}
+
+	return cardNames, nil
+}
+
+// drawRandomCards selects a specified number of random cards
+func drawRandomCards(num int, allowReverse bool) ([]Card, error) {
+	allCards, err := getAllCardNames()
+	if err != nil {
+		return nil, err
+	}
+
+	if num > len(allCards) {
+		return nil, fmt.Errorf("requested %d cards, but only %d are available", num, len(allCards))
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	rand.Shuffle(len(allCards), func(i, j int) {
+		allCards[i], allCards[j] = allCards[j], allCards[i]
+	})
+
+	var cards []Card
+	for i := 0; i < num; i++ {
+		reversed := false
+		if allowReverse {
+			reversed = rand.Intn(2) == 0 // Randomly decide if the card is reversed
+		}
+		cards = append(cards, Card{Name: allCards[i], Reversed: reversed})
+	}
+
+	return cards, nil
+}
+
 func main() {
 	var yamlPath string
 	var output string
 	var listCards bool
 	var cardsCSV string
+	var randomCount int
+	var allowReverse bool
 
 	flag.StringVar(&yamlPath, "yaml", "", "Path to YAML file describing cards and output")
 	flag.StringVar(&output, "o", "spread.png", "Output PNG filename")
 	flag.StringVar(&cardsCSV, "c", "", "Comma-separated list of cards (e.g. strength,!hermit,5_of_swords)")
 	flag.BoolVar(&listCards, "list", false, "List all available card names")
+	flag.IntVar(&randomCount, "random", 0, "Number of random cards to draw")
+	flag.BoolVar(&allowReverse, "allow-reverse", false, "Allow random cards to be reversed") // Default set to false
 	flag.Parse()
+
+	// Warn if -allow-reverse is used without -random
+	if allowReverse && randomCount == 0 {
+		log.Println("Warning: -allow-reverse is ignored because -random is not specified.")
+	}
 
 	// Handle -list flag
 	if listCards {
@@ -194,6 +256,13 @@ func main() {
 			name := strings.TrimPrefix(item, "!")
 			cards = append(cards, Card{Name: name, Reversed: reversed})
 		}
+	} else if randomCount > 0 {
+		// Draw random cards if -random flag is used
+		var err error
+		cards, err = drawRandomCards(randomCount, allowReverse)
+		if err != nil {
+			log.Fatalf("Failed to draw random cards: %v", err)
+		}
 	}
 
 	// If nothing was parsed, show usage
@@ -202,6 +271,7 @@ func main() {
 		fmt.Println("  gtarot -c strength,!hermit,5_of_swords -o spread.png")
 		fmt.Println("  gtarot -yaml spread.yaml")
 		fmt.Println("  gtarot -list")
+		fmt.Println("  gtarot -random 3 -allow-reverse=true -o spread.png")
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
