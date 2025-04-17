@@ -17,7 +17,7 @@ Embed all tarot card images (*.png) into the Go binary using embed.FS
 
 Specify cards directly via `-c` or via `YAML` file
 
-Reversed cards (rotated 180°) supported using !cardname
+Reversed cards (rotated 180°) supported using `'!cardname'`
 
 Generate a horizontal PNG layout of your spread
 
