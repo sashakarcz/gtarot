@@ -1,0 +1,49 @@
+name: Build gtarot
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build for multiple platforms
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [amd64, arm64] # macOS supports ARM64, others will ignore it
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Go
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.20
+
+      # Build the binary
+      - name: Build binary
+        run: |
+          GOOS=${{ matrix.os == 'windows-latest' && echo 'windows' || echo 'linux' }}
+          GOARCH=${{ matrix.arch }}
+          OUTPUT_NAME="gtarot"
+          if [ "$GOOS" = "windows" ]; then
+            OUTPUT_NAME="gtarot.exe"
+          fi
+          mkdir -p build/${{ matrix.os }}-${{ matrix.arch }}
+          GOOS=$GOOS GOARCH=$GOARCH go build -o build/${{ matrix.os }}-${{ matrix.arch }}/$OUTPUT_NAME
+
+      # Upload artifacts
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: gtarot-${{ matrix.os }}-${{ matrix.arch }}
+          path: build/${{ matrix.os }}-${{ matrix.arch }}
