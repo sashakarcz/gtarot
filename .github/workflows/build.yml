@@ -1,4 +1,4 @@
-name: Build gtarot
+name: Build and Sign gtarot
 
 on:
   push:
@@ -10,13 +10,13 @@ on:
 
 jobs:
   build:
-    name: Build for multiple platforms
+    name: Build, Sign, and Upload Binaries
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        arch: [amd64, arm64] # macOS supports ARM64, others will ignore it
+        os: [linux, windows, macos]
+        arch: [amd64, arm64] # ARM64 is valid for macOS, Linux, and Windows
 
     steps:
       # Checkout the repository
@@ -32,14 +32,31 @@ jobs:
       # Build the binary
       - name: Build binary
         run: |
-          GOOS=${{ matrix.os == 'windows-latest' && echo 'windows' || echo 'linux' }}
-          GOARCH=${{ matrix.arch }}
-          OUTPUT_NAME="gtarot"
-          if [ "$GOOS" = "windows" ]; then
+          if [ "${{ matrix.os }}" = "windows" ]; then
             OUTPUT_NAME="gtarot.exe"
+          else
+            OUTPUT_NAME="gtarot"
           fi
           mkdir -p build/${{ matrix.os }}-${{ matrix.arch }}
-          GOOS=$GOOS GOARCH=$GOARCH go build -o build/${{ matrix.os }}-${{ matrix.arch }}/$OUTPUT_NAME
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o build/${{ matrix.os }}-${{ matrix.arch }}/$OUTPUT_NAME
+
+      # Install Cosign
+      - name: Install Cosign
+        run: |
+          curl -sSL https://github.com/sigstore/cosign/releases/latest/download/cosign-linux-amd64 -o /usr/local/bin/cosign
+          chmod +x /usr/local/bin/cosign
+
+      # Sign the binary
+      - name: Sign binary
+        env:
+          COSIGN_EXPERIMENTAL: "true" # Enable OIDC signing
+        run: |
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            OUTPUT_NAME="gtarot.exe"
+          else
+            OUTPUT_NAME="gtarot"
+          fi
+          cosign sign-blob --oidc-issuer=https://token.actions.githubusercontent.com --oidc-client-id=sigstore ${{ github.repository }}/build/${{ matrix.os }}-${{ matrix.arch }}/$OUTPUT_NAME
 
       # Upload artifacts
       - name: Upload build artifacts
