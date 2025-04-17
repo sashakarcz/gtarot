@@ -39,7 +39,7 @@ go mod tidy
 go build -o gtarot
 ```
 
-Ifyou wish to add custom cards, make sure your cards/ folder contains images named like:
+If you wish to add custom cards, make sure your cards/ folder contains images named like:
 
 `major_arcana_fool.png`
 
