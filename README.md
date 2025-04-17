@@ -1,39 +1,42 @@
-gtarot 🃏
+# gtarot
 
 gtarot is a command-line tool written in Go that creates PNG images of tarot card spreads.
 
-🔮 Embed your full tarot deck directly in the binary
+- Embed your full tarot deck directly in the binary
 
-🌀 Supports reversed cards (e.g., !hermit)
+- Supports reversed cards (e.g., !hermit)
 
-📄 Use CLI or YAML input
+- Use CLI or YAML input
 
-🖼️ Outputs beautiful side-by-side layouts
+- Outputs beautiful side-by-side layouts
 
-✨ Features
+## Features
 
 Embed all tarot card images (*.png) into the Go binary using embed.FS
 
-Specify cards directly via -c or via YAML file
+Specify cards directly via `-c` or via `YAML` file
 
 Reversed cards (rotated 180°) supported using !cardname
 
 Generate a horizontal PNG layout of your spread
 
-List all available card names with -list
+List all available card names with `-list`
 
-📦 Requirements
+## Requirements
 
 Go 1.16+ (for embed)
 
 PNG tarot card images stored in cards/ directory
 
-🛠️ Installation
+## Installation
+
+```bash
 
 git clone https://github.com/sashakarcz/gtarot
 cd gtarot
 go mod tidy
 go build -o gtarot
+```
 
 Make sure your cards/ folder contains images named like:
 
@@ -43,68 +46,61 @@ minor_arcana_swords_5.png
 
 minor_arcana_cups_queen.png
 
-🚀 Usage
+## Usage
 
-📋 List available cards
+### List available cards
 
+```
 ./gtarot -list
+```
 
-🎴 Generate a spread with CLI input
+### Generate a spread with CLI input
 
+```
 ./gtarot -c strength,'!hermit',5_of_swords -o spread.png
 
-!hermit → reversed (rotated 180°)
+```
 
-📂 Generate a spread using a YAML file
+NOTE: `!hermit` → reversed (rotated 180°)
 
-spread.yaml
+### Generate a spread using a YAML file
+
+```
+cat spread.yaml
 
 cards:
   - strength
   - '!hermit'
   - 5_of_swords
 output: spread.png
+```
 
 Then run:
 
+```
 ./gtarot -yaml spread.yaml
+```
 
-🧾 Command Line Flags
+### 🧾 Command Line Flags
 
-Flag
+| Flag      | Description                                                     | Example Usage                                  |
+|-----------|-----------------------------------------------------------------|------------------------------------------------|
+| `-c`      | Comma-separated list of card names. Use `!` for reversed cards. | `-c strength,!hermit,5_of_swords`              |
+| `-yaml`   | Path to a YAML file specifying cards and output filename.       | `-yaml spread.yaml`                            |
+| `-o`      | Output PNG filename (default: `spread.png`).                    | `-o custom.png`                                |
+| `-list`   | List all available embedded tarot card names.                   | `-list`                                        |
 
-Description
 
--c
-
-Comma-separated list of cards (e.g., strength,!hermit)
-
--yaml
-
-Path to a YAML file with cards and output
-
--o
-
-Output PNG filename (default: spread.png)
-
--list
-
-List all available embedded card names
-
-🧙 Example Output
+### Example Output
 
 ![Example tarot spread](output.png)
 
 
-🧑‍💻 Author
-
-Sasha Karcz
-
-📜 License
+## License
 
 MIT – do as thou wilt!
 
-🧱 Roadmap Ideas
+## Roadmap Ideas
 
 
 
